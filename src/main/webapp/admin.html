@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .navbar {
+            width: 100%;
+            background-color: #333;
+            overflow: hidden;
+        }
+
+        .navbar a {
+            float: left;
+            display: block;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .logincard {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+            width: 100%;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .logintext {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .inpt {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            display: block;
+        }
+
+        .loginbtn {
+            width: 60%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+
+        }
+
+        .logoutcnt {
+            text-align: center;
+
+        }
+
+        .logoutbtn {
+            margin-top: 15px;
+            margin-right: 15px;
+            width: 10%;
+            float: right;
+            background-color: #dc3545;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .logoutbtn:hover {
+            background-color: #671019;
+            color: white;
+        }
+
+        .loginbtn:hover {
+            background-color: #0056b3;
+        }
+
+        #message {
+            margin-top: 10px;
+            color: red;
+        }
+
+        .content {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+
+        .content.active {
+            display: block;
+        }
+
+        .table-container {
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            margin: 10px 0;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn2{
+            padding: 8px 16px;
+            margin: 10px 0;
+            background-color: #0c4d03;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn2:hover {
+            background-color: #073603;
+        }
+
+        .actdiv{
+            display: flex;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a href="#" id="homeLink">Home</a>
+    <a href="#" id="destinationsLink">Destinations</a>
+    <a href="#" id="articlesLink">Articles</a>
+    <a href="#" id="usersLink">Users</a>
+    <div class="logoutcnt">
+        <button id="logoutBtn" class="logoutbtn">Logout</button>
+    </div>
+</nav>
+
+<div id="welcome" class="content active">
+    <h2 class="logintext">Welcome to the Admin Page</h2>
+    <p>Use the navigation menu to manage destinations and articles.</p>
+    <p>You can write new articles in the articles tab.</p>
+    <p>Click on the destination or article name to view more details.</p>
+    <p>You can manage users by clicking users in the navbar.</p>
+
+</div>
+
+<div id="destinations" class="content">
+    <h1>Destinations</h1>
+    <div class="table-container">
+        <button class="btn" id="addDestinationBtn">Add Destination</button>
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="destinationsTableBody">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="users" class="content">
+    <h1>Users</h1>
+    <div class="table-container">
+        <button class="btn" id="addUserBtn">Add User</button>
+        <table>
+            <thead>
+            <tr>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="usersTableBody">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="articles" class="content">
+    <h1>Articles</h1>
+    <div class="table-container">
+        <button class="btn" id="addArticleBtn">Add Article</button>
+        <table>
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Date & Time</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="articlesTableBody">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="addDestination" class="content">
+    <h1>Add a destination</h1>
+    <form onsubmit="addDestination()">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" class="inpt">
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" class="inpt"></textarea>
+        <label for="country">Country:</label>
+        <input type="text" id="country" name="country" class="inpt">
+        <label for="rating">Rating:</label>
+        <input type="number" id="rating" name="rating" class="inpt">
+        <button type="submit" class="btn">Add Destination</button>
+    </form>
+</div>
+
+<div id="addUser" class="content">
+    <h1>Add User</h1>
+    <form onsubmit="addUser(event)">
+        <input type="hidden" id="userId" name="userId">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" class="inpt">
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" name="firstName" class="inpt">
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" name="lastName" class="inpt">
+        <label for="userType">User Type:</label>
+        <select id="userType" name="userType" class="inpt">
+            <option value="ADMIN">ADMIN</option>
+            <option value="EDITOR">EDITOR</option>
+        </select>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" class="inpt">
+        <label for="repeatPassword">Repeat Password:</label>
+        <input type="password" id="repeatPassword" name="repeatPassword" class="inpt">
+        <button type="submit" class="btn">Add User</button>
+    </form>
+</div>
+
+<div id="editUser" class="content">
+    <h1>Edit User</h1>
+    <form onsubmit="editUser(event)">
+        <label for="emailE">Email:</label>
+        <input type="email" id="emailE" name="email" class="inpt">
+        <label for="firstNameE">First Name:</label>
+        <input type="text" id="firstNameE" name="firstName" class="inpt">
+        <label for="lastNameE">Last Name:</label>
+        <input type="text" id="lastNameE" name="lastName" class="inpt">
+        <label for="userTypeE">User Type:</label>
+        <select id="userTypeE" name="userType" class="inpt">
+            <option value="ADMIN">ADMIN</option>
+            <option value="EDITOR">EDITOR</option>
+        </select>
+        <label for="status">Status:</label>
+        <select id="status" name="status" class="inpt">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+        </select>
+        <button type="submit" class="btn">Save Changes</button>
+    </form>
+</div>
+
+<div id="editDestination" class="content">
+    <h1>Edit a destination</h1>
+    <form onsubmit="editDestination(event)">
+        <input type="hidden" id="destinationId" name="destinationId">
+        <label for="name">Name:</label>
+        <input type="text" id="name1" name="name" class="inpt">
+        <label for="description">Description:</label>
+        <textarea id="description1" name="description" class="inpt"></textarea>
+        <label for="country">Country:</label>
+        <input type="text" id="country1" name="country" class="inpt">
+        <label for="rating">Rating:</label>
+        <input type="number" id="rating1" name="rating" class="inpt">
+        <button type="submit" class="btn">Save Changes</button>
+    </form>
+</div>
+
+<div id="addArticle" class="content">
+    <h1>Write an article</h1>
+    <form onsubmit="addArticle(event)">
+        <label for="titleA">Title:</label>
+        <input type="text" id="titleA" name="title" class="inpt">
+        <label for="contentA">Content:</label>
+        <textarea id="contentA" name="content" class="inpt"></textarea>
+        <label for="activitiesA">Activities:</label>
+        <label for="destinationsA">Destinations:</label>
+        <select id="destinationsA" name="destinations" multiple class="inpt">
+        </select>
+        <div>
+            <div class="actdiv">
+                <input type="text" id="activitiesA" class="inpt">
+                <button type="button" class="btn2" onclick="addActivity()">Add Activity</button>
+            </div>
+            <label for="activitiesList">Added Activities:</label>
+            <p id="activitiesList"></p>
+        </div>
+        <button type="submit" class="btn">Save Changes</button>
+    </form>
+</div>
+
+<div id="editArticle" class="content">
+    <h1>Edit an article</h1>
+    <form onsubmit="editArticle(event)">
+        <input type="hidden" id="articleId" name="articleId">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" class="inpt">
+        <label for="content">Content:</label>
+        <textarea id="content" name="content" class="inpt"></textarea>
+        <label for="activities">Activities:</label>
+        <select id="activities" name="activities" multiple class="inpt">
+        </select>
+        <button type="submit" class="btn">Save Changes</button>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+
+    let activitiesArray = [];
+
+    $(document).ready(function() {
+        $('#logoutBtn').click(function() {
+            $.get('/api/logout').done(function(data) {
+                window.location.href = '/index.html';
+            });
+        });
+
+        $('#homeLink').click(function() {
+            showView('welcome');
+        });
+
+        $('#destinationsLink').click(function() {
+            showView('destinations');
+        });
+
+        $('#articlesLink').click(function() {
+            showView('articles');
+        });
+
+        $('#addDestinationBtn').click(function() {
+            showView('addDestination');
+        });
+
+        $('#addArticleBtn').click(function() {
+            populateDestinationsInAddArticleForm();
+            showView('addArticle');
+        });
+
+        $('#usersLink').click(function() {
+            showView('users');
+        });
+
+        $('#addUserBtn').click(function() {
+            showView('addUser');
+        });
+
+        loadData();
+    });
+
+    function showView(viewId) {
+        $('.content').removeClass('active');
+        $('#' + viewId).addClass('active');
+    }
+
+    function addActivity() {
+        const activity = $('#activitiesA').val();
+        if (activity) {
+            activitiesArray.push(activity);
+            $('#activitiesA').val('');
+            updateActivitiesList();
+        }
+    }
+
+    function updateActivitiesList() {
+        const activitiesList = activitiesArray.join(', ');
+        $('#activitiesList').text(activitiesList);
+    }
+
+    function loadData() {
+        $.get('api/users').done(function (data){
+            const usersTableBody = $('#usersTableBody');
+            usersTableBody.empty();
+            data.forEach(user => {
+                const row = `<tr>
+                <td>${user.email}</td>
+                <td>${user.firstName} ${user.lastName}</td>
+                <td>${user.userType}</td>
+                <td>${user.status}</td>
+                <td>
+                    <button class="btn editUserBtn" data-id="${user.id}">Edit</button>
+                    <button class="btn statusUserBtn" data-id="${user.id}">Change Status</button>
+                </td>
+            </tr>`;
+                usersTableBody.append(row);
+            });
+
+            $('.editUserBtn').click(function() {
+                const userId = $(this).data('id');
+                populateEditUserForm(userId);
+            });
+
+            $('.statusUserBtn').click(function() {
+                const userId = $(this).data('id');
+                changeUserStatus(userId);
+            });
+        });
+
+        $.get('/api/destinations').done(function(data) {
+            const destinationsTableBody = $('#destinationsTableBody');
+            destinationsTableBody.empty();
+            data.forEach(destination => {
+                const row = `<tr>
+                <td><a href="#">${destination.name}</a></td>
+                <td>${destination.description}</td>
+                <td>
+                    <button class="btn editDestinationBtn" data-id="${destination.id}">Edit</button>
+                    <button class="btn deleteDestinationBtn" data-id="${destination.id}">Delete</button>
+                </td>
+            </tr>`;
+                destinationsTableBody.append(row);
+            });
+
+            $('.editDestinationBtn').click(function() {
+                const destinationId = $(this).data('id');
+                populateEditDestinationForm(destinationId);
+            });
+
+            $('.deleteDestinationBtn').click(function() {
+                const destinationId = $(this).data('id');
+                deleteDestination(destinationId);
+            });
+
+        });
+
+        $.get('/api/articles').done(function(data) {
+            const articlesTableBody = $('#articlesTableBody');
+            articlesTableBody.empty(); // Clear existing rows
+            data.forEach(article => {
+                $.get('/api/users/' + article.authorId).done(function(user) {
+                    const userName = user.firstName + ' ' + user.lastName;
+                    const datePart = article.time.date;
+                    const timePart = article.time.time;
+                    const formattedTime = `${datePart.year}-${datePart.month.toString().padStart(2, '0')}-${datePart.day.toString().padStart(2, '0')} ` +
+                        `${timePart.hour.toString().padStart(2, '0')}:${timePart.minute.toString().padStart(2, '0')}:${timePart.second.toString().padStart(2, '0')}`;
+
+                    const row = `<tr>
+                <td><a href="#">${article.title}</a></td>
+                <td>${userName}</td>
+                <td>${formattedTime}</td>
+                <td>
+                    <button class="btn editArticleBtn" data-id="${article.id}">Edit</button>
+                    <button class="btn deleteArticleBtn" data-id="${article.id}">Delete</button>
+                </td>
+            </tr>`;
+                    articlesTableBody.append(row);
+                });
+            });
+
+            // Add event listeners for edit and delete buttons
+            $(document).on('click', '.editArticleBtn', function() {
+                const articleId = $(this).data('id');
+                //alert('Edit button clicked for article ID: ' + articleId);
+                populateEditArticleForm(articleId);
+            });
+
+            $(document).on('click', '.deleteArticleBtn', function() {
+                const articleId = $(this).data('id');
+                //alert('Delete button clicked for article ID: ' + articleId);
+                deleteArticle(articleId);
+            });
+        });
+    }
+
+    function populateDestinationsInAddArticleForm() {
+        $.get('/api/destinations').done(function(destinations) {
+            const destinationsSelect = $('#destinationsA');
+            destinationsSelect.empty();
+            destinations.forEach(destination => {
+                const option = `<option value="${destination.id}">${destination.name}</option>`;
+                destinationsSelect.append(option);
+            });
+        });
+    }
+
+    function populateEditDestinationForm(destinationId) {
+        $.get('/api/destinations/' + destinationId).done(function(destination) {
+            $('#destinationId').val(destination.id);
+            $('#name1').val(destination.name);
+            $('#description1').val(destination.description);
+            $('#country1').val(destination.country);
+            $('#rating1').val(destination.rating);
+
+            showView('editDestination');
+        });
+    }
+
+    function populateEditUserForm(userId) {
+        $.get('/api/users/' + userId).done(function(user) {
+            $('#userId').val(user.id);
+            $('#emailE').val(user.email);
+            $('#firstNameE').val(user.firstName);
+            $('#lastNameE').val(user.lastName);
+            $('#userTypeE').val(user.userType);
+
+            showView('editUser');
+        });
+    }
+
+    function populateEditArticleForm(articleId) {
+        $.get('/api/articles/' + articleId).done(function(article) {
+            $('#articleId').val(article.id);
+            $('#title').val(article.title);
+            $('#content').val(article.text);
+            $('#activities').empty();
+            $.get('/api/activities').done(function(activities) {
+                activities.forEach(activity => {
+                    const option = `<option value="${activity.id}">${activity.keywords}</option>`;
+                    $('#activities').append(option);
+                });
+                showView('editArticle');
+            });
+        });
+    }
+
+    function addUser(event){
+        event.preventDefault();
+        const email = $('#email').val();
+        const firstName = $('#firstName').val();
+        const lastName = $('#lastName').val();
+        const userType = $('#userType').val();
+        const password = $('#password').val();
+        const repeatPassword = $('#repeatPassword').val();
+        //alert(userType);
+
+        if (password !== repeatPassword) {
+            alert('Passwords do not match');
+            return;
+        }
+
+        const userData = {
+            email: email,
+            firstName: firstName,
+            lastName: lastName,
+            userType: userType,
+            password: password,
+            status: true
+        };
+
+        $.ajax({
+            url: '/api/users',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(userData),
+            success: function(data) {
+                showView('users');
+                loadData();
+            },
+            error: function() {
+                showView('users');
+                loadData();
+            }
+        });
+    }
+
+    function editDestination(event) {
+        event.preventDefault();
+
+        const id = $('#destinationId').val();
+        const name = $('#name1').val();
+        const description = $('#description1').val();
+        const country = $('#country1').val();
+        const rating = $('#rating1').val();
+
+        const destinationData = {
+            id: id,
+            name: name,
+            description: description,
+            country: country,
+            rating: rating
+        };
+
+        $.ajax({
+            url: '/api/destinations/' + id,
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(destinationData),
+            success: function(data) {
+                showView('destinations');
+                loadData();
+            },
+            error: function() {
+                showView('destinations');
+                loadData();
+            }
+        });
+    }
+
+    function editArticle(event){
+        event.preventDefault();
+        const id = $('#articleId').val();
+        const title = $('#title').val();
+        const content = $('#content').val();
+        const time = new Date().toISOString();
+        const activities = $('#activities').val();
+        const articleData = {
+            id: id,
+            title: title,
+            text: content,
+            time: time,
+            activities: activities
+        };
+        $.ajax({
+            url: '/api/articles/' + id,
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(articleData),
+            success: function(data) {
+                showView('articles');
+                loadData();
+            },
+            error: function() {
+                showView('articles');
+                loadData();
+            }
+        });
+    }
+
+    function deleteDestination(destinationId) {
+        $.ajax({
+            url: '/api/destinations/' + destinationId,
+            type: 'DELETE',
+            success: function(data) {
+                //alert('Destination deleted successfully');
+                showView('destinations');
+                loadData();
+            },
+            error: function() {
+                //alert('Failed to delete destination');
+                showView('destinations');
+                loadData();
+            }
+        });
+    }
+
+    function changeUserStatus(userId) {
+        $.get('/api/users/' + userId).done(function(user) {
+            user.status = !user.status;
+            $.ajax({
+                url: '/api/users/' + userId,
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(user),
+                success: function(data) {
+                    loadData();
+                },
+                error: function() {
+                    loadData();
+                }
+            });
+        });
+    }
+
+    function deleteArticle(articleId) {
+        $.ajax({
+            url: '/api/articles/' + articleId,
+            type: 'DELETE',
+            success: function(data) {
+                //alert('Article deleted successfully');
+                showView('articles');
+                loadData();
+            },
+            error: function() {
+                //alert('Failed to delete article');
+                showView('articles');
+                loadData();
+            }
+        });
+    }
+
+    function addDestination() {
+        const name = $('#name').val();
+        const description = $('#description').val();
+        const country = $('#country').val();
+        const rating = $('#rating').val();
+
+        const destinationData = {
+            name: name,
+            description: description,
+            country: country,
+            rating: rating
+        };
+
+        $.post('/api/destinations', JSON.stringify(destinationData), function(data) {
+            showView('destinations');
+            loadData();
+        });
+    }
+
+    function addArticle(event) {
+        event.preventDefault();
+        const title = $('#titleA').val();
+        const text = $('#contentA').val();
+        const time = new Date().toISOString();
+        const activities = activitiesArray;
+        const destinationId = parseInt($('#destinationsA').val(), 10);
+
+        $.ajax({
+            url: '/api/activities',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({keywords: activities}),
+            success: function(response) {
+                const activityId = JSON.parse(response);
+                //alert(response);
+                //alert("Activity ID:", activityId);
+                const articleData = {
+                    title: title,
+                    text: text,
+                    time: time,
+                    activityId: activityId,
+                    destinationId: destinationId
+                };
+                console.log("Article Data:", articleData);
+
+                $.ajax({
+                    url: '/api/articles',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(articleData),
+                    success: function(data) {
+                        showView('articles');
+                        loadData();
+                    },
+                    error: function(err) {
+                        console.error("Error:", err);
+                        showView('articles');
+                        loadData();
+                    }
+                });
+            },
+            error: function(err) {
+                console.error("Error adding activity:", err);
+            }
+        });
+    }
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tourist Articles</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .navbar {
+            width: 100%;
+            background-color: #333;
+            position: fixed;
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        .navbar a {
+            float: left;
+            display: block;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .content {
+            padding-top: 60px;
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        .article {
+            background-color: #fff;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .article h2 {
+            margin-top: 0;
+        }
+
+        .article p {
+            margin: 10px 0;
+        }
+
+        .article .details {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .comment {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .comment .author {
+            font-weight: bold;
+        }
+
+        .comment .date {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .comment-form {
+            margin-top: 20px;
+        }
+
+        .comment-form input,
+        .comment-form textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            display: block;
+        }
+
+        .comment-form button {
+            width: 60%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .comment-form button:hover {
+            background-color: #0056b3;
+        }
+
+        #pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        #pagination button {
+            margin: 0 5px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #pagination button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #pagination span {
+            margin: 0 10px;
+            align-self: center;
+        }
+
+        #mostReadContainer {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .mostReadColumn {
+            width: 48%;
+        }
+
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a href="#" id="homeLink">Newest Articles</a>
+    <a href="#" id="mostReadLink">Most read</a>
+    <a href="#" id="destinationsLink">Destinations</a>
+</nav>
+
+<div id="home" class="content active">
+    <h1>Newest Articles</h1>
+    <div id="latestArticles"></div>
+    <div id="pagination">
+        <button id="prevPage">Previous</button>
+        <span id="currentPage">1</span>
+        <button id="nextPage">Next</button>
+    </div>
+</div>
+
+<div id="activity" class="content">
+    <h1>Articles for activity:</h1>
+    <h2 id="activityTitle"></h2>
+    <div id="activityArticles"></div>
+</div>
+
+<div id="mostRead" class="content">
+    <h1>Most viewed articles:</h1>
+    <div id="mostReadContainer">
+        <div class="mostReadColumn" id="mostReadColumn1"></div>
+        <div class="mostReadColumn" id="mostReadColumn2"></div>
+    </div>
+</div>
+
+<div id="destinations" class="content">
+    <h1>Destinations:</h1>
+    <div id="destinationArticles"></div>
+</div>
+
+<div id="articleDetails" class="content">
+    <h1 id="articleTitle"></h1>
+    <h2 id="articleDestination"></h2>
+    <p id="articleText"></p>
+    <p class="details">
+        <span id="articleDate"></span> | <span id="articleAuthor"></span>
+    </p>
+    <p id="articleActivities"></p>
+    <h2>Comments</h2>
+    <div id="comments"></div>
+    <div class="comment-form">
+        <label for="commentAuthor"></label>
+        <input type="text" id="commentAuthor" placeholder="Username">
+        <label for="commentText"></label>
+        <textarea id="commentText" placeholder="Comment"></textarea>
+        <button id="addCommentBtn">Comment</button>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    let currentPage = 1;
+    const pageSize = 4;
+    let currentArticleId = null;
+
+    $(document).ready(function() {
+        $('#homeLink').click(function() {
+            showView('home');
+            loadLatestArticles(currentPage);
+            setupPagination();
+        });
+
+        $('#mostReadLink').click(function() {
+            showView('mostRead');
+            loadMostReadArticles();
+        });
+
+        $('#destinationsLink').click(function() {
+            showView('destinations');
+            loadDestinations();
+        });
+
+        loadLatestArticles(currentPage);
+        setupPagination();
+
+        function showView(viewId) {
+            $('.content').removeClass('active');
+            $('#' + viewId).addClass('active');
+        }
+
+        function loadDestinations() {
+            $.ajax({
+                url: '/api/destinations',
+                type: 'GET',
+                success: function(destinations) {
+                    const destinationArticles = $('#destinationArticles');
+                    destinationArticles.empty();
+
+                    destinations.forEach(destination => {
+                        const destinationHtml = `
+                            <h2>${destination.name}</h2>
+                            <div id="destination-${destination.id}"></div>`;
+                        destinationArticles.append(destinationHtml);
+
+                        $.get(`/api/articledest/${destination.id}`, function(articles) {
+                            const destinationContainer = $(`#destination-${destination.id}`);
+                            articles.forEach(article => {
+                                const articleHtml = `
+                                    <div class="article" data-id="${article.id}">
+                                        <h2>${article.title}</h2>
+                                        <p>${article.text.slice(0, 100)}...</p>
+                                        <p class="details">Datum: ${article.time.date.year}-${article.time.date.month}-${article.time.date.day}</p>
+                                    </div>`;
+                                destinationContainer.append(articleHtml);
+                            });
+                            $('.article').off('click').on('click', function() {
+                                currentArticleId = $(this).data('id'); // Update global article ID
+                                showArticleDetails(currentArticleId);
+                            });
+                        });
+                    });
+                }
+            });
+        }
+
+        function loadLatestArticles(pageNumber) {
+            $.ajax({
+                url: '/api/articlesplaginized/' + pageNumber,
+                type: 'GET',
+                success: function(data) {
+                    const latestArticles = $('#latestArticles');
+                    latestArticles.empty();
+                    data.forEach(article => {
+                        const articleHtml = `
+                            <div class="article" data-id="${article.id}">
+                                <h2>${article.title}</h2>
+                                <p>${article.text.slice(0, 100)}...</p>
+                                <p class="details">Datum: ${article.time.date.year}-${article.time.date.month}-${article.time.date.day} ${article.time.time.hour}:${article.time.time.minute}:${article.time.time.second}</p>
+                            </div>`;
+                        latestArticles.append(articleHtml);
+                    });
+                    $('.article').off('click').on('click', function() {
+                        currentArticleId = $(this).data('id'); // Update global article ID
+                        showArticleDetails(currentArticleId);
+                    });
+
+                    getTotalArticles().done(function(totalData) {
+                        const totalPages = Math.ceil(totalData.totalArticles / pageSize);
+                        $('#currentPage').text(pageNumber);
+                        $('#prevPage').prop('disabled', pageNumber <= 1);
+                        $('#nextPage').prop('disabled', pageNumber >= totalPages);
+                    });
+                }
+            });
+        }
+
+        function setupPagination() {
+            getTotalArticles().done(function(totalData) {
+                const totalPages = Math.ceil(totalData.totalArticles / pageSize);
+                $('#prevPage').prop('disabled', currentPage <= 1);
+                $('#nextPage').prop('disabled', currentPage >= totalPages);
+
+                $('#prevPage').off('click').click(function() {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        loadLatestArticles(currentPage);
+                    }
+                });
+
+                $('#nextPage').off('click').click(function() {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        loadLatestArticles(currentPage);
+                    }
+                });
+            });
+        }
+
+        function getTotalArticles() {
+            return $.ajax({
+                url: '/api/articlestotal',
+                type: 'GET',
+                dataType: 'json'
+            });
+        }
+
+        function showArticleDetails(articleId) {
+            showView('articleDetails');
+
+            $.ajax({
+                url: '/api/articles/' + articleId,
+                type: 'GET',
+                success: function(article) {
+                    const destinationPromise = $.get(`/api/destinations/${article.destinationId}`);
+                    const authorPromise = $.get(`/api/users/${article.authorId}`);
+                    const activitiesPromise = $.get('/api/activities/' + article.id);
+
+                    Promise.all([destinationPromise, authorPromise, activitiesPromise])
+                        .then(results => {
+                            const destination = results[0];
+                            const user = results[1];
+                            const activities1 = results[2];
+
+                            const destinationName = destination.name;
+                            const author = user.firstName + ' ' + user.lastName;
+
+                            $('#articleDetails').data('id', article.id);
+                            $('#articleTitle').text(article.title);
+                            $('#articleDestination').text(destinationName);
+                            $('#articleText').text(article.text);
+                            $('#articleDate').text(`Datum: ${article.time.date.year}-${article.time.date.month}-${article.time.date.day} ${article.time.time.hour}:${article.time.time.minute}:${article.time.time.second}`);
+                            $('#articleAuthor').text(`Autor: ${author}`);
+                            loadArticleActivities();
+                            loadComments(articleId);
+                        });
+                }
+            });
+
+            $.post(`/api/articlesaddview/${articleId}`);
+        }
+
+
+        function loadArticleActivities(){
+            const articleId = currentArticleId;
+            $.get('/api/articleacc/' + articleId, function(activityId) {
+                const activitiesContainer = $('#articleActivities');
+                $.get('/api/activities/' + activityId, function(activity) {
+                    activitiesContainer.empty();
+                    const activityHtml = `
+                <p>Activities: ${activity.keywords.map(keyword => `<a href="#" class="activity-link">${keyword}</a>`).join(', ')}</p>`;
+                    activitiesContainer.append(activityHtml);
+
+                    $('.activity-link').on('click', function(event) {
+                        event.preventDefault();
+                        handleActivityClick(activityId);
+                    });
+                });
+            });
+        }
+        function handleActivityClick(activityId) {
+            loadActivityArticles(activityId);
+        }
+
+        function loadComments(articleId) {
+            $.get(`/api/comments/` + articleId, function(comments) {
+                const commentsContainer = $('#comments');
+                commentsContainer.empty();
+                comments.forEach(comment => {
+                    const commentHtml = `
+                        <div class="comment">
+                            <p class="author">${comment.author}</p>
+                            <p>${comment.text}</p>
+                        </div>`;
+                    commentsContainer.append(commentHtml);
+                });
+            });
+        }
+
+        $('#addCommentBtn').click(function() {
+            const articleId = currentArticleId;
+            const author = $('#commentAuthor').val();
+            const text = $('#commentText').val();
+
+            if (author && text) {
+                $.ajax({
+                    url: '/api/comments/',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ articleId, author, text }),
+                    success: function() {
+                        loadComments(articleId);
+                        $('#commentAuthor').val('');
+                        $('#commentText').val('');
+                        loadData();
+                        showView('home');
+                    }
+                });
+                loadData();
+                showView('home');
+            }
+            loadData();
+            showView('home');
+        });
+
+        function loadMostReadArticles() {
+            $.ajax({
+                url: '/api/articlesviewed/',
+                type: 'GET',
+                success: function(data) {
+                    const mostReadColumn1 = $('#mostReadColumn1');
+                    const mostReadColumn2 = $('#mostReadColumn2');
+                    mostReadColumn1.empty();
+                    mostReadColumn2.empty();
+
+                    data.forEach((article, index) => {
+                        const articleHtml = `
+                            <div class="article" data-id="${article.id}">
+                                <h2>#${index + 1} ${article.title}</h2>
+                                <p>${article.text.slice(0, 100)}...</p>
+                                <p class="details">Views: ${article.views} | Datum: ${article.time.date.year}-${article.time.date.month}-${article.time.date.day} ${article.time.time.hour}-${article.time.time.minute}-${article.time.time.second}</p>
+                            </div>`;
+
+                        if (index < 5) {
+                            mostReadColumn1.append(articleHtml);
+                        } else {
+                            mostReadColumn2.append(articleHtml);
+                        }
+                    });
+
+                    $('.article').off('click').on('click', function() {
+                        currentArticleId = $(this).data('id');
+                        showArticleDetails(currentArticleId);
+                    });
+                }
+            });
+        }
+
+        function loadActivityArticles(activityId) {
+            showView('activity');
+            $.ajax({
+                url: '/api/articleactivity/' + activityId,
+                type: 'GET',
+                success: function(articles) {
+                    const activityArticles = $('#activityArticles');
+                    activityArticles.empty();
+                    articles.forEach(article => {
+                        const articleHtml = `
+                            <div class="article" data-id="${article.id}">
+                                <h2>${article.title}</h2>
+                                <p>${article.text.slice(0, 100)}...</p>
+                                <p class="details">Datum: ${article.time.date.year}-${article.time.date.month}-${article.time.date.day} ${article.time.time.hour}-${article.time.time.minute}-${article.time.time.second}</p>
+                            </div>`;
+                        activityArticles.append(articleHtml);
+                    });
+                    $('.article').off('click').on('click', function() {
+                        currentArticleId = $(this).data('id'); // Update global article ID
+                        showArticleDetails(currentArticleId);
+                    });
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
